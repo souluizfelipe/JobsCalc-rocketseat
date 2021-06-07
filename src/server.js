@@ -7,4 +7,4 @@ server.set('view engine', 'ejs');
 server.use(routes);
 server.use(express.static("public"));
 
-server.listen(3000, () => console.log('rodando'));
+server.listen(3000, () => console.log('working...'));
