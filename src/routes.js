@@ -5,13 +5,13 @@ const views = __dirname + "/views/";
 
 const Profile = {
     data: {
-    name: 'Luiz Felipe',
-    avatar: 'https://unavatar.vercel.app/github/souluizfelipe',
-    "monthly-budget": 5000.00,
-    "hours-per-day": 8,
-    "days-per-week": 5,
-    "vacation-per-year": 5,
-    "value-hour": '-',
+        name: 'Luiz Felipe',
+        avatar: 'https://unavatar.vercel.app/github/souluizfelipe',
+        "monthly-budget": 8000.00,
+        "hours-per-day": 8,
+        "days-per-week": 5,
+        "vacation-per-year": 4,
+        "value-hour": 75,
     },
 
     controllers: {
@@ -32,7 +32,7 @@ const Profile = {
                 ...req.body,
                 'value-hour': valueHour,
             };
-            
+
             return res.redirect('/profile')
         },
     }
@@ -66,9 +66,10 @@ const Job = {
                     ...job,
                     remaning,
                     status,
-                    budget: Profile.data['value-hour'] * job['total-hours'],
+                    budget: Job.services.calculateBudget(job, Profile.data['value-hour']) ,
                 }
             });
+            
             res.render(views + "index", { jobs: updateJobs, profile: Profile.data });
         },
         
@@ -87,7 +88,45 @@ const Job = {
                 'created-at': Date.now(), 
             });
             return res.redirect('/');
-        },  
+        },
+        
+        edit(req, res) {
+            const jobId = req.params.id;
+            const job = Job.data.find(job => Number(jobId) === Number(job.id));
+
+            if(!job) {
+                return res.send('Job not found! :(');
+            };
+
+            job.budget = Job.services.calculateBudget(job, Profile.data['value-hour']);
+
+            return res.render(views + "job-edit", { job })
+        },
+
+        update(req, res) {
+            const jobId = req.params.id;
+            const job = Job.data.find(job => Number(jobId) === Number(job.id));
+
+            if(!job){
+                return res.send('job not found! :(');
+            }
+
+            const updatedJob = {
+                ...job,
+                name: req.body.name,
+                'daily-hours': req.body['daily-hours'],
+                'total-hours': req.body['total-hours'],
+            }
+
+            Job.data = Job.data.map(job => {
+                if(Number(job.id) === Number(jobId)){
+                    job = updatedJob;
+                };
+                return job;
+            });
+
+            res.redirect(`/`);
+        },
     },
     
     services: {
@@ -105,13 +144,20 @@ const Job = {
             
             return dayDiff;
         },
+
+        calculateBudget: (job, valueHour) => valueHour * job['total-hours'],
+
     },
 }
 
 routes.get('/',  Job.controllers.index);
+
 routes.get('/job', Job.controllers.create);
 routes.post('/job', Job.controllers.save);
-routes.get('/job/edit', (req, res) => res.render(views + "job-edit"));
+
+routes.get('/job/:id', Job.controllers.edit);
+routes.post('/job/:id', Job.controllers.update);
+
 routes.get('/profile', Profile.controllers.index);
 routes.post('/profile', Profile.controllers.updade);
 
