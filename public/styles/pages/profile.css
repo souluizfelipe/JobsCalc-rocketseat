@@ -51,3 +51,7 @@ aside p {
 main {
   flex: 1;
 }
+
+.input-wrapper {
+  width: 50%;
+}
