@@ -17,7 +17,24 @@ module.exports = {
         };
     },
 
-    update: (newData) => data = newData,
+    async update(newData){
+        const db = await Database();
+        newData = await db.run(
+            `UPDATE profile
+            SET name = "${newData.name}",
+            avatar = "${newData.avatar}",
+            monthly_budget = ${newData["monthly-budget"]},
+            hours_per_day = ${newData["hours-per-day"]},
+            days_per_week = ${newData["days-per-week"]},
+            vacation_per_year = ${newData["vacation-per-year"]},
+            value_hour = ${newData["value-hour"]}
+            WHERE id=1
+            `
+        );  
+        await db.close()
+
+        // data = newData,  
+    } 
 }
 
 
