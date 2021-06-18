@@ -32,8 +32,6 @@ module.exports = {
             `
         );  
         await db.close()
-
-        // data = newData,  
     } 
 }
 
